@@ -58,7 +58,7 @@ io.on('connection', (socket) => {
                 totalRuns: value == 'Out' ? 0 : value,
                 overNo:overNo,
                 ballNo:currentBall+1,
-                totalWickets: wickets,
+                totalWickets: wickets+1,
                 currentOver: Overs,
                 allOvers:overArr,
                 moveValue:moveValue,
