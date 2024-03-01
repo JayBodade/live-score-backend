@@ -26,6 +26,46 @@ let ID = '';
 app.use(express.json());
 
 
+function calculateMoveValue(value) {
+    if (200 < value && value < 300) {
+        return 10;
+    }
+    if (301 < value && value < 340) {
+        return 20;
+    }
+    if (340 < value && value < 400) {
+        return 30;
+    }
+    if (401 < value && value < 500) {
+        return 20;
+    }
+    if (501 < value && value < 600) {
+        return 60;
+    }
+    if (600 < value && value < 700) {
+        return 70;
+    }
+    if (701 < value && value < 800) {
+        return 80;
+    }
+    if (801 < value && value < 899) {
+        return 100;
+    }
+    if (900 < value && value < 1100) {
+        return 130;
+    }
+    if (1100 < value && value < 1500) {
+        return 120;
+    }
+    
+    // Add a default value or handle cases where the value doesn't match any condition
+    return 0;
+}
+
+
+
+
+
 io.on('connection', (socket) => {
  
     socket.on('getmatchId',()=>{
@@ -46,9 +86,10 @@ io.on('connection', (socket) => {
     socket.on('publishscore', async (data) => {
         socket.broadcast.emit('loading',true);
         try{
-        const { currentBall, value, wickets,matchId,moveValue, overNo } = data;
-       
+        const { currentBall, value, widthValue,wickets,matchId,moveValue, overNo } = data;
+             console.log(widthValue);
         if (!matchId && ID == '') {
+
             let overArr = [];
             overArr.push({ 0: '', 1: '', 2: '', 3: '', 4: '', 5: ''});
             overArr[overNo][currentBall] = value;
@@ -61,7 +102,7 @@ io.on('connection', (socket) => {
                 totalWickets: value == 'Out' ? wickets+1 : 0,
                 currentOver: Overs,
                 allOvers:overArr,
-                moveValue:moveValue,
+                moveValue:calculateMoveValue(widthValue),
             }
             const storedScore = await ScoreModel.create(scoreData);
             data.matchId = storedScore._id;
@@ -83,8 +124,7 @@ io.on('connection', (socket) => {
             currentBall == 5 ? recentOvers.push({ 0: '', 1: '', 2: '', 3: '', 4: '', 5: '' }) :' '
             recentOvers[overNo][currentBall] = value;
 
-
-
+           
             if(value == 'Out'){
                 let newWickets = storedScore.totalWickets + 1;
                 const updateScore = await ScoreModel.findByIdAndUpdate({_id:sId},{totalWickets:newWickets,currentOver:storedOver,overNo:recentOverNo,ballNo:ball,allOvers:recentOvers,moveValue});
